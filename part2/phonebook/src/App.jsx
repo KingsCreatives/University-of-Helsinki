@@ -29,6 +29,20 @@ const App = () => {
     person.name.toLowerCase().includes(filter.toLowerCase())
   );
 
+  const handleDeleteContact = async (id) => {
+    const contactToDelete = persons.find(ele => ele.id === id)
+    const confirmDelete = window.confirm(`Delete ${contactToDelete.name}`);
+    if (confirmDelete) {
+      try {
+        await phoneServices.removeItem(id);
+        setPersons(persons.filter((person) => person.id !== id));
+      } catch (err) {
+        console.error("Error deleting contact:", err);
+      }
+    }
+  }
+
+
   return (
     <div>
       <h1>Phonebook</h1>
@@ -49,6 +63,8 @@ const App = () => {
               key={person.id}
               name={person.name}
               number={person.number}
+              id={person.id}
+              onDelete={()=> handleDeleteContact(person.id)}
             />
           ))}
         </ul>
