@@ -1,0 +1,43 @@
+*{
+ box-sizing: border-box;
+ margin: 0;
+ padding: 0;
+}
+
+.nav,
+.hero{
+    padding: 1rem 2rem;
+    display: flex;
+    align-items: center;
+}
+
+.nav{
+    height: 70px;
+    box-shadow: 0px 3px 7.5px 0px #0000001A;
+    margin-bottom: 1rem;
+}
+
+.hero{
+    justify-content: center;
+    flex-direction: column;
+    margin: 0 auto;
+    width: 100%;
+    max-width: 800px;
+}
+
+.hero--img{
+    width: 100%;
+    max-width: 700px;
+    align-self: center;
+}
+
+.hero--texts{
+    width: 100%;
+    max-width: 500px;
+    line-height: 1.5;
+    margin-right: auto;
+}
+
+.hero--header{
+    margin-bottom: 1rem;
+}
