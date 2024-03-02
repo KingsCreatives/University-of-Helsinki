@@ -1,11 +1,13 @@
 import { useState } from 'react'
+import Nav from './components/Nav'
+import travelData from './data'
 
 function App() {
-  const [count, setCount] = useState(0)
+  
 
   return (
      <div className='container'>
-        
+        <Nav/>
      </div>
   )
 }
