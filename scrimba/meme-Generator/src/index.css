@@ -1,0 +1,31 @@
+*{
+    box-sizing: border-box;
+    margin: 0;
+}
+
+body{
+    color: #fff;
+}
+
+img{
+    width: 100%;
+    max-width: 3.5rem;
+}
+
+.flex{
+  display: flex;
+}
+
+.header{
+    background: violet;
+    height: 65px;
+    padding: 0 1.2rem;
+    align-items: center;
+}
+
+.brand{
+    align-items: center;
+    margin-right: auto;
+    gap: 0.74rem;
+}
+
