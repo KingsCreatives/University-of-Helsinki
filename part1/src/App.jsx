@@ -28,20 +28,16 @@ const App = () => {
     name: "State of a component",
     exercises: 14,
   };
-
   return (
     <div>
-      <h1>{course}</h1>
-      <p>
-        {part1.name} {part1.name}
-      </p>
-      <p>
-        {part2.name} {part2.name}
-      </p>
-      <p>
-        {part3.name} {part3.name}
-      </p>
-      <p>Number of exercises {part1.exercises + part2.exercises + part3.exercises}</p>
+      <Part part={part1.name} exercise={part1.exercises} />
+      <Part part={part2.name} exercise={part2.exercises} />
+      <Part part={part3.name} exercise={part3.exercises} />
+      <Total
+        exercises1={part1.exercises}
+        exercises2={part2.exercises}
+        exercises3={part3.exercises}
+      />
     </div>
   );
 };
