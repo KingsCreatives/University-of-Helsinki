@@ -1,8 +1,31 @@
-const Header = ({title}) => <h1>{title}</h1>
+const Header = ({ title }) => <h1>{title}</h1>;
 
-const Content = ({part, exercise}) => <p>{part} {exercise}</p>
+const Part = ({ name, exercise }) => (
+  <p>
+    {name} {exercise}
+  </p>
+);
 
-const Total = ({ first, second, third }) => <p>Number of exercises{first + second + third}</p>;
+const Content = ({
+  part1Name,
+  part1Exercise,
+  part2Name,
+  part2Exercise,
+  part3Name,
+  part3Exercise,
+}) => {
+  return (
+    <div>
+      <Part name={part1Name} exercise={part1Exercise} />
+      <Part name={part2Name} exercise={part2Exercise} />
+      <Part name={part3Name} exercise={part3Exercise} />
+    </div>
+  );
+};
+
+const Total = ({ first, second, third }) => (
+  <p>Number of exercises{first + second + third}</p>
+);
 
 const App = () => {
   const course = "Half Stack application development";
@@ -15,11 +38,16 @@ const App = () => {
 
   return (
     <div>
-      <Header title={course}/>
-      <Content part={part1} exercise={exercises1}/>
-      <Content part={part2} exercise={exercises2}/>
-      <Content part={part3} exercise={exercises3}/>
-      <Total first={exercises1} second={exercises2} third={exercises3}/>
+      <Header title={course} />
+      <Content
+        part1Name={part1}
+        part1Exercise={exercises1}
+        part2Name={part2}
+        part2Exercise={exercises2}
+        part3Name={part3}
+        part3Exercise={exercises3}
+      />
+      <Total first={exercises1} second={exercises2} third={exercises3} />
     </div>
   );
 };
