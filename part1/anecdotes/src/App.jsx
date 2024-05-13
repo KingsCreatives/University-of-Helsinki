@@ -1,5 +1,7 @@
 import { useState } from "react";
 
+const Header = ({ text }) => <h1>{text}</h1>;
+
 const App = () => {
   const anecdotes = [
     "If it hurts, do it more often.",
@@ -13,28 +15,41 @@ const App = () => {
   ];
 
   const [selected, setSelected] = useState(0);
-  const [vote, setVote] = useState(new Array(anecdotes.length).fill(0))
+  const [vote, setVote] = useState(new Array(anecdotes.length).fill(0));
 
- const randomAnectode = () => {
-  const randomNumber = Math.floor(Math.random() * anecdotes.length)
-  setSelected(randomNumber)
- }
+  const randomAnectode = () => {
+    const randomNumber = Math.floor(Math.random() * anecdotes.length);
+    setSelected(randomNumber);
+  };
 
-const getVoteCount = () => {
-   const updatedVotes = [...vote]
-   updatedVotes[selected] += 1
-   setVote(updatedVotes)
-}
+  const getVoteCount = () => {
+    const updatedVotes = [...vote];
+    updatedVotes[selected] += 1;
+    setVote(updatedVotes);
+  };
 
-const totalVote = vote[selected]
+  const totalVote = vote[selected];
 
+  const maxVoteIndex = vote.indexOf(Math.max(...vote));
 
   return (
     <div>
-      <p>{anecdotes[selected]}</p>
-      <p>has {totalVote <= 1 ? `${totalVote} vote` : `${totalVote} votes`}</p>
-      <button onClick={getVoteCount}>vote</button>
-      <button onClick={randomAnectode}>next anecdote</button>
+      <section>
+        <Header text={"Anecdote of the day"} />
+        <p>{anecdotes[selected]}</p>
+        <p>has {totalVote <= 1 ? `${totalVote} vote` : `${totalVote} votes`}</p>
+        <button onClick={getVoteCount}>vote</button>
+        <button onClick={randomAnectode}>next anecdote</button>
+      </section>
+      <section>
+        <Header text={"Anectode with most vote"} />
+        <div>
+          <p>{anecdotes[maxVoteIndex]}</p>
+          <p>
+            {vote[maxVoteIndex]} {vote[maxVoteIndex] === 1 ? "vote" : "votes"}
+          </p>
+        </div>
+      </section>
     </div>
   );
 };
