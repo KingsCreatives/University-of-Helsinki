@@ -1,8 +1,12 @@
 import React from "react";
+import axios from 'axios'
 import { useState } from "react";
 import InputForm from "./InputForm";
 
 const ContactForm = ({ persons, setPersons }) => {
+
+  const baseUrl = "http://localhost:3001/persons";
+
   const [newContact, setNewContact] = useState({
     name: "",
     number: "",
@@ -19,10 +23,11 @@ const ContactForm = ({ persons, setPersons }) => {
 
   const handleAddPerson = (event) => {
     event.preventDefault();
+    console.log(persons.length)
     const newContactToAdd = {
       name: newContact.name,
       number: newContact.number,
-      id: persons.length + 1,
+      id: `${[...persons].length + 1}`,
     };
 
     if (
@@ -31,10 +36,13 @@ const ContactForm = ({ persons, setPersons }) => {
       )
     ) {
       alert(`${newContactToAdd.name} is already added to phonebook`);
-    } else {
-      setPersons([...persons, newContactToAdd]);
+    }else{
+      axios
+      .post(baseUrl, newContactToAdd)
+      .then(res => {
+        setPersons([...persons, res.data])
+      })
     }
-
     setNewContact({ name: "", number: "" });
   };
 
