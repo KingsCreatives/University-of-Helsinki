@@ -1,18 +1,21 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
 import InputForm from "./components/InputForm";
 import ContactForm from "./components/ContactForm";
 import Contact from "./components/Contact";
+import phoneServices from './services/phone'
 
 const App = () => {
   const [persons, setPersons] = useState([]);
 
    useEffect(() => {
-     axios
-     .get("http://localhost:3001/persons")
-     .then((res) => {
-       setPersons(res.data);
-     });
+    phoneServices
+    .getAll()
+    .then(res => {
+      setPersons(res)
+    })
+    .catch(err => {
+      console.error(err)
+    })
    }, []);
   
 

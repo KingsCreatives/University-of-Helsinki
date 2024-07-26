@@ -1,11 +1,9 @@
 import React from "react";
-import axios from 'axios'
 import { useState } from "react";
 import InputForm from "./InputForm";
+import phoneServices from '../services/phone'
 
 const ContactForm = ({ persons, setPersons }) => {
-
-  const baseUrl = "http://localhost:3001/persons";
 
   const [newContact, setNewContact] = useState({
     name: "",
@@ -23,7 +21,7 @@ const ContactForm = ({ persons, setPersons }) => {
 
   const handleAddPerson = (event) => {
     event.preventDefault();
-    console.log(persons.length)
+
     const newContactToAdd = {
       name: newContact.name,
       number: newContact.number,
@@ -37,11 +35,12 @@ const ContactForm = ({ persons, setPersons }) => {
     ) {
       alert(`${newContactToAdd.name} is already added to phonebook`);
     }else{
-      axios
-      .post(baseUrl, newContactToAdd)
+      phoneServices
+      .create(newContactToAdd)
       .then(res => {
-        setPersons([...persons, res.data])
+        setPersons([...persons, res])
       })
+      .catch(err => console.error(err))
     }
     setNewContact({ name: "", number: "" });
   };
