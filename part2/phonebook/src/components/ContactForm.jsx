@@ -1,10 +1,8 @@
-import React from "react";
-import { useState } from "react";
+import React, { useState } from "react";
 import InputForm from "./InputForm";
-import phoneServices from '../services/phone'
+import phoneServices from "../services/phone";
 
 const ContactForm = ({ persons, setPersons }) => {
-
   const [newContact, setNewContact] = useState({
     name: "",
     number: "",
@@ -25,46 +23,55 @@ const ContactForm = ({ persons, setPersons }) => {
     const newContactToAdd = {
       name: newContact.name,
       number: newContact.number,
-      id: `${[...persons].length + 1}`,
     };
 
-    if (
-      persons.some(
-        (ele) => ele.name.toLowerCase() === newContactToAdd.name.toLowerCase()
-      )
-    ) {
-      alert(`${newContactToAdd.name} is already added to phonebook`);
-    }else{
+    const person = persons.find(
+      (ele) => ele.name.toLowerCase() === newContactToAdd.name.toLowerCase()
+    );
+
+    if (person) {
+      const confirmUpdate = window.confirm(
+        `${newContactToAdd.name} is already added to phonebook. Do you want to update the number?`
+      );
+      if (confirmUpdate) {
+        phoneServices
+          .update(person.id, newContactToAdd)
+          .then((updatedContact) => {
+            phoneServices.getAll().then((updatedContacts) => {
+              setPersons(updatedContacts);
+            });
+          });
+      }
+    } else {
       phoneServices
-      .create(newContactToAdd)
-      .then(res => {
-        setPersons([...persons, res])
-      })
-      .catch(err => console.error(err))
+        .create(newContactToAdd)
+        .then((res) => {
+          setPersons([...persons, res]);
+        })
+        .catch((err) => console.error(err));
     }
     setNewContact({ name: "", number: "" });
   };
 
   return (
     <div>
-      <h2>add a new contact</h2>
+      <h2>Add a new contact</h2>
       <form onSubmit={handleAddPerson}>
         <InputForm
           name="name"
-          label="name"
+          label="Name"
           type="text"
           onChange={handleInputChange}
           value={newContact.name}
         />
-
         <InputForm
-          label="number"
-          type="number"
           name="number"
+          label="Number"
+          type="text"
           onChange={handleInputChange}
           value={newContact.number}
         />
-        <button type="submit">add</button>
+        <button type="submit">Add</button>
       </form>
     </div>
   );
