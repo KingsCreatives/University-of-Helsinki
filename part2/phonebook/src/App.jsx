@@ -6,6 +6,8 @@ import phoneServices from './services/phone'
 
 const App = () => {
   const [persons, setPersons] = useState([]);
+  const [successMessage, setSuccessMessage] = useState('')
+  
 
    useEffect(() => {
     phoneServices

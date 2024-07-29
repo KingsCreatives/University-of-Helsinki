@@ -1,13 +1,17 @@
 import React, { useState } from "react";
 import InputForm from "./InputForm";
+import Notification from "./Notification";
 import phoneServices from "../services/phone";
 
-const ContactForm = ({ persons, setPersons }) => {
+const ContactForm = ({ persons, setPersons}) => {
   const [newContact, setNewContact] = useState({
     name: "",
     number: "",
     id: "",
   });
+
+  const [alert, setAlert] = useState('')
+  const [showNotification, setShowNotification] = useState(false);
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
@@ -46,15 +50,25 @@ const ContactForm = ({ persons, setPersons }) => {
       phoneServices
         .create(newContactToAdd)
         .then((res) => {
-          setPersons([...persons, res]);
+          setPersons([...persons, res])
+          setShowNotification(true)
+          setAlert(`Added ${newContactToAdd.name}`)
+          setTimeout(() => {
+            setShowNotification(false)
+          }, 5000)
         })
         .catch((err) => console.error(err));
     }
     setNewContact({ name: "", number: "" });
+    setShowNotification(false)
   };
 
   return (
     <div>
+      <br />
+      {
+        showNotification ? <Notification message={alert}/> : null
+      }
       <h2>Add a new contact</h2>
       <form onSubmit={handleAddPerson}>
         <InputForm
