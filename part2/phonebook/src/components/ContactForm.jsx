@@ -1,17 +1,14 @@
 import React, { useState } from "react";
 import InputForm from "./InputForm";
-import Notification from "./Notification";
 import phoneServices from "../services/phone";
 
-const ContactForm = ({ persons, setPersons}) => {
+const ContactForm = ({ persons, setPersons, showNotification}) => {
   const [newContact, setNewContact] = useState({
     name: "",
     number: "",
     id: "",
   });
 
-  const [alert, setAlert] = useState('')
-  const [showNotification, setShowNotification] = useState(false);
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
@@ -41,34 +38,38 @@ const ContactForm = ({ persons, setPersons}) => {
         phoneServices
           .update(person.id, newContactToAdd)
           .then((updatedContact) => {
-            phoneServices.getAll().then((updatedContacts) => {
-              setPersons(updatedContacts);
-            });
+            setPersons(
+              persons.map((p) => (p.id === person.id ? updatedContact : p))
+            );
+            showNotification(`Updated ${updatedContact.name}`);
+          })
+          .catch((error) => {
+            showNotification(
+              `Information of ${newContactToAdd.name} has already been removed from the server`,
+              "error"
+            );
+            setPersons(persons.filter((p) => p.id !== person.id));
           });
       }
     } else {
       phoneServices
         .create(newContactToAdd)
         .then((res) => {
-          setPersons([...persons, res])
-          setShowNotification(true)
-          setAlert(`Added ${newContactToAdd.name}`)
-          setTimeout(() => {
-            setShowNotification(false)
-          }, 5000)
+          setPersons([...persons, res]);
+          showNotification(`Added ${res.name}`);
         })
-        .catch((err) => console.error(err));
+        .catch((err) => {
+          showNotification(
+            `Error adding ${newContactToAdd.name}: ${err.message}`,
+            "error"
+          );
+        });
     }
     setNewContact({ name: "", number: "" });
-    setShowNotification(false)
   };
 
   return (
     <div>
-      <br />
-      {
-        showNotification ? <Notification message={alert}/> : null
-      }
       <h2>Add a new contact</h2>
       <form onSubmit={handleAddPerson}>
         <InputForm
