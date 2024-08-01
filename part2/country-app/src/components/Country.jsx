@@ -1,17 +1,10 @@
 import React from 'react'
 
-const Country = ({name, capital, area, languages, flag}) => {
-    const languageArray = [...Object.values(languages)];
+const Country = ({name, onClick}) => {
   return (
     <div>
-        <h2>{name}</h2>
-        <p>Capital: {capital}</p>
-        <p>Area: {area}</p>
-        <b>Languages:</b>
-        <ul>
-            {languageArray.map(language => (<li key={language}>{language}</li>))}
-        </ul>
-        <img src={flag} alt={"Flag of" + name} />
+        {name}
+        <button onClick={onClick}>show</button>
     </div>
   )
 }
