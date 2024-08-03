@@ -3,13 +3,18 @@ import axios from "axios";
 import CountryInfo from "./components/CountryInfo";
 import Country from "./components/Country";
 
+
 function App() {
   const [searchQuery, setSearchQuery] = useState("");
   const [matchingCountries, setMatchingCountries] = useState([]);
   const [clickedCountry, setClickedCountry] = useState("");
   const [selectedCountry, setSelectedCountry] = useState(null);
+  const [weatherData, setWeatherData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+
+const apiKey = import.meta.env.VITE_WEATHER_API_KEY;
+
 
   const handleSearchChange = (event) => {
     setSearchQuery(event.target.value);
@@ -34,6 +39,18 @@ function App() {
     setIsLoading(false);
   };
 
+  const fetchWeatherData = async (capital) => {
+    try {
+      const res = await axios.get(
+        `https://api.openweathermap.org/data/2.5/weather?q=${capital}&appid=${apiKey}`
+      );
+      setWeatherData(res.data);
+      console.log(res.data)
+    } catch (error) {
+      console.error("Failed to fetch weather data", error);
+    }
+  };
+
   const performSearch = async () => {
     setIsLoading(true);
     setError(null);
@@ -41,7 +58,6 @@ function App() {
       const res = await axios.get(
         `https://restcountries.com/v3.1/name/${searchQuery}`
       );
-
       if (res.data.length > 10) {
         setMatchingCountries([]);
         setError("Too many matches, please be more specific");
@@ -76,6 +92,14 @@ function App() {
     }
   }, [clickedCountry]);
 
+  useEffect(() => {
+    if(selectedCountry && selectedCountry.capital){
+      fetchWeatherData(selectedCountry.capital[0])
+    }
+  }, [selectedCountry])
+
+  
+
   const renderResult = () => {
     if (isLoading) return <p>Loading....</p>;
     if (error) return <p>{error}</p>;
@@ -101,7 +125,9 @@ function App() {
               area={selectedCountry.area}
               flag={selectedCountry.flags.png}
               languages={selectedCountry.languages}
+              weather={weatherData}
             />
+            
           </div>
         )}
       </div>
