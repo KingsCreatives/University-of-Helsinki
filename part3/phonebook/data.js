@@ -1,4 +1,4 @@
-const contact = [
+let contact = [
   {
     id: "1",
     name: "Arto Hellas",

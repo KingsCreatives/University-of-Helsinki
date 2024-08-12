@@ -4,7 +4,7 @@ const PORT = 3001;
 
 app.use(express.json());
 
-const {contact} = require('./data')
+let {contact} = require('./data')
 
 app.get("/api/persons", (req, res) => {
   return res.status(200).json(contact);
@@ -38,6 +38,13 @@ app.get("/api/persons/:id", (req, res) => {
   }
 
   return res.json(person)
+})
+
+
+app.delete("/api/persons/:id", (req, res) => {
+  const id = req.params.id
+  contact = contact.filter(ele => ele.id !== id)
+   res.status(204).end();
 })
 
 app.listen(PORT, () => {
