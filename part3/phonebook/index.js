@@ -54,6 +54,17 @@ const randomId = () => {
 app.post('/api/persons', (req,res) => {
   const body = req.body
 
+  if(!body.name || !body.number){
+    const err = body.name === "" || !body.name ? 'name' : 'number'
+    return res.status(404).json({error: `${err} is missing` })
+  }
+
+  const findName = contact.find(ele => ele.name.toLowerCase() === body.name.toLowerCase())
+
+  if(findName){
+    return res.status(404).json({ error: "name must be unique" });
+  }
+
   const phoneBook = {
      name : body.name,
      number: body.number,
