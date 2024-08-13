@@ -47,6 +47,22 @@ app.delete("/api/persons/:id", (req, res) => {
    res.status(204).end();
 })
 
+const randomId = () => {
+  return String(Math.floor(Math.random() * 1000000))
+}
+
+app.post('/api/persons', (req,res) => {
+  const body = req.body
+
+  const phoneBook = {
+     name : body.name,
+     number: body.number,
+     id: randomId()
+  }
+
+  return res.json(phoneBook)
+})
+
 app.listen(PORT, () => {
   console.log(`app is running on PORT:${PORT}`);
 });
