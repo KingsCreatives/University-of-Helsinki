@@ -2,11 +2,16 @@ const express = require("express");
 const morgan = require('morgan')
 const PORT = 3001;
 const app = express();
+let {contact} = require('./data')
 
 app.use(express.json());
-app.use(morgan('tiny'))
 
-let {contact} = require('./data')
+morgan.token('body', function (req) {
+  return JSON.stringify(req.body);
+});
+
+app.use(morgan(':method :url :status :response-time ms - :body'));
+
 
 app.get("/api/persons", (req, res) => {
   return res.status(200).json(contact);
