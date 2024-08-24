@@ -23,6 +23,6 @@ let contact = [
 
 
 
-module.exports = {
+modules.exports = {
     contact,
 }
