@@ -46,6 +46,8 @@ const App = () => {
     if (confirmDelete) {
       try {
         await phoneServices.removeItem(id);
+        console(`successfully deleted ${confirmDelete}`)
+        await phoneServices.getAll()
         setPersons(persons.filter((person) => person.id !== id));
         showNotification(`Deleted ${contactToDelete.name}`);
       } catch (err) {

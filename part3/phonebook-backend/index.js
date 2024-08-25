@@ -1,16 +1,38 @@
 const express = require("express");
 const morgan = require('morgan')
+const cors = require('cors')
 const PORT = 3001;
 const app = express();
-let {contact} = require('./data')
 
 app.use(express.json());
-
 morgan.token('body', function (req) {
   return JSON.stringify(req.body);
 });
-
 app.use(morgan(':method :url :status :response-time ms - :body'));
+app.use(cors())
+
+let contact = [
+  {
+    id: "1",
+    name: "Arto Hellas",
+    number: "040-123456",
+  },
+  {
+    id: "2",
+    name: "Ada Lovelace",
+    number: "39-44-5323523",
+  },
+  {
+    id: "3",
+    name: "Dan Abramov",
+    number: "12-43-234345",
+  },
+  {
+    id: "4",
+    name: "Mary Poppendieck",
+    number: "39-23-6423122",
+  },
+];
 
 
 app.get("/api/persons", (req, res) => {
@@ -49,10 +71,16 @@ app.get("/api/persons/:id", (req, res) => {
 
 
 app.delete("/api/persons/:id", (req, res) => {
-  const id = req.params.id
-  contact = contact.filter(ele => ele.id !== id)
-   res.status(204).end();
-})
+  const id = req.params.id;
+  const contactBefore = contact.length;
+  contact = contact.filter((ele) => ele.id !== id);
+
+  if (contactBefore === contact.length) {
+    return res.status(404).json({ error: "Contact not found" });
+  }
+
+  res.status(204).end();
+});
 
 const randomId = () => {
   return String(Math.floor(Math.random() * 1000000))
