@@ -8,7 +8,7 @@ app.use(express.json());
 morgan.token('body', function (req) {
   return JSON.stringify(req.body);
 });
-app.use(morgan(':method :url :status :response-time ms - :body'));
+app.use(morgan(':method :url :status :response-time ms'));
 app.use(cors())
 
 let contact = [
@@ -34,6 +34,9 @@ let contact = [
   },
 ];
 
+app.get("/", (req, res) => {
+  return res.send("Phonebook App")
+});
 
 app.get("/api/persons", (req, res) => {
   return res.status(200).json(contact);
