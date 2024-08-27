@@ -9,6 +9,7 @@ morgan.token('body', function (req) {
 });
 app.use(morgan(':method :url :status :response-time ms'));
 app.use(cors())
+app.use(express.static("dist"));
 
 let contact = [
   {
@@ -33,9 +34,6 @@ let contact = [
   },
 ];
 
-app.get("/", (req, res) => {
-  return res.send("<h1>Hello World!</h1>")
-});
 
 app.get("/api/persons", (req, res) => {
   return res.status(200).json(contact);
