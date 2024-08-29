@@ -1,74 +1,55 @@
+require("dotenv").config();
 const express = require("express");
-const morgan = require('morgan')
-const cors = require('cors')
-const PORT = process.env.PORT || 3001;const app = express();
+const morgan = require("morgan");
+const cors = require("cors");
+const app = express();
+const PORT = process.env.PORT;
+const Person = require('./model/phonebook')
 
 app.use(express.json());
-morgan.token('body', function (req) {
+morgan.token("body", function (req) {
   return JSON.stringify(req.body);
 });
-app.use(morgan(':method :url :status :response-time ms'));
-app.use(cors())
+app.use(morgan(":method :url :status :response-time ms"));
+app.use(cors());
 app.use(express.static("dist"));
 
-let contact = [
-  {
-    id: "1",
-    name: "Arto Hellas",
-    number: "040-123456",
-  },
-  {
-    id: "2",
-    name: "Ada Lovelace",
-    number: "39-44-5323523",
-  },
-  {
-    id: "3",
-    name: "Dan Abramov",
-    number: "12-43-234345",
-  },
-  {
-    id: "4",
-    name: "Mary Poppendieck",
-    number: "39-23-6423122",
-  },
-];
 
 
 app.get("/api/persons", (req, res) => {
-  return res.status(200).json(contact);
+  Person.find({}).then(persons => {
+    res.json(persons)
+  })
 });
 
 app.get("/info", (req, res) => {
-  const text = `Phonebook has info for ${contact.length} person`
- const date = new Date().toLocaleString('en-US', { 
-    weekday: 'short', 
-    year: 'numeric', 
-    month: 'short', 
-    day: 'numeric',
-    hour: 'numeric',
-    minute: 'numeric',
-    second: 'numeric',
-    timeZoneName: 'long'
+  const text = `Phonebook has info for ${contact.length} person`;
+  const date = new Date().toLocaleString("en-US", {
+    weekday: "short",
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "numeric",
+    second: "numeric",
+    timeZoneName: "long",
   });
   const response = `${text}\n${date}`;
-   return res.send(response)
-})
-
+  return res.send(response);
+});
 
 app.get("/api/persons/:id", (req, res) => {
-  const personId = req.params.id
-  const person = contact.find(p => p.id === personId)
+  const personId = req.params.id;
+  const person = contact.find((p) => p.id === personId);
 
-  if(!person){
+  if (!person) {
     return res.status(404).json({
-      error : `No contact has the ${personId} as it Id`
-    })
+      error: `No contact has the ${personId} as it Id`,
+    });
   }
 
-  return res.json(person)
-})
-
+  return res.json(person);
+});
 
 app.delete("/api/persons/:id", (req, res) => {
   const id = req.params.id;
@@ -83,31 +64,38 @@ app.delete("/api/persons/:id", (req, res) => {
 });
 
 const randomId = () => {
-  return String(Math.floor(Math.random() * 1000000))
-}
+  return String(Math.floor(Math.random() * 1000000));
+};
 
-app.post('/api/persons', (req,res) => {
-  const body = req.body
+app.post("/api/persons", (req, res) => {
+  const { name, number } = req.body;
 
-  if(!body.name || !body.number){
-    const err = body.name === "" || !body.name ? 'name' : 'number'
-    return res.status(404).json({error: `${err} is missing` })
+  if (!name || !number) {
+    const missingData = !name ? "name" : "number";
+    return res.status(404).json({ error: `${missingData} is missing` });
   }
 
-  const findName = contact.find(ele => ele.name.toLowerCase() === body.name.toLowerCase())
+  Person.findOne({ name: name.toLowerCase() })
+    .then((existingPerson) => {
+      if (existingPerson) {
+        return res.status(409).json({ error: "name must be unique" });
+      }
 
-  if(findName){
-    return res.status(404).json({ error: "name must be unique" });
-  }
+      const person = new Person({
+        name,
+        number,
+      });
 
-  const phoneBook = {
-     name : body.name,
-     number: body.number,
-     id: randomId()
-  }
+      return person.save();
+    })
+    .then((savedPerson) => {
+      res.status(201).json(savedPerson);
+    })
+    .catch((err) => {
+      return res.status(500).json({ error: "Something went wrong" });
+    });
+});
 
-  return res.json(phoneBook)
-})
 
 app.listen(PORT, () => {
   console.log(`app is running on PORT:${PORT}`);
