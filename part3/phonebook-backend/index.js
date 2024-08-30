@@ -52,20 +52,14 @@ app.get("/api/persons/:id", (req, res) => {
 });
 
 app.delete("/api/persons/:id", (req, res) => {
-  const id = req.params.id;
-  const contactBefore = contact.length;
-  contact = contact.filter((ele) => ele.id !== id);
+  Person.findByIdAndDelete(req.params.id)
+        .then(result => {
+          res.status(204).end();
+        })
+        .catch(error => next(error))
 
-  if (contactBefore === contact.length) {
-    return res.status(404).json({ error: "Contact not found" });
-  }
-
-  res.status(204).end();
 });
 
-const randomId = () => {
-  return String(Math.floor(Math.random() * 1000000));
-};
 
 app.post("/api/persons", (req, res) => {
   const { name, number } = req.body;
