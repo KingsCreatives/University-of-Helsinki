@@ -2,7 +2,7 @@ const express = require("express");
 const morgan = require("morgan");
 const cors = require("cors");
 const app = express();
-const PORT = 3001
+const PORT = 3001;
 require("dotenv").config();
 
 const Person = require("./model/phonebook");
@@ -33,8 +33,8 @@ app.get("/api/persons", (req, res, next) => {
     .catch((error) => next(error));
 });
 
-app.get("/info", (req, res) => {
-  const text = `Phonebook has info for ${contact.length} person`;
+app.get("/info", async (req, res) => {
+  const text = `Phonebook has info for ${await Person.countDocuments()} person`;
   const date = new Date().toLocaleString("en-US", {
     weekday: "short",
     year: "numeric",
@@ -49,17 +49,12 @@ app.get("/info", (req, res) => {
   return res.send(response);
 });
 
-app.get("/api/persons/:id", (req, res) => {
-  const personId = req.params.id;
-  const person = contact.find((p) => p.id === personId);
-
-  if (!person) {
-    return res.status(404).json({
-      error: `No contact has the ${personId} as it Id`,
-    });
-  }
-
-  return res.json(person);
+app.get("/api/persons/:id", (req, res, next) => {
+  Person.findById(req.params.id)
+    .then((contactData) => {
+      return res.status(200).json(contactData);
+    })
+    .catch((error) => next(error));
 });
 
 app.delete("/api/persons/:id", (req, res, next) => {
@@ -100,20 +95,15 @@ app.post("/api/persons", (req, res) => {
 });
 
 app.put("/api/persons/:id", (req, res, next) => {
-  const {name, number} = req.body;
+  const { name, number } = req.body;
   const person = {
     name,
-    number
+    number,
   };
 
   Person.findByIdAndUpdate(req.params.id, person, { new: true })
     .then((updatedPerson) => {
       res.json(updatedPerson);
-      // Person.find({})
-      //   .then((persons) => {
-      //     res.json(persons);
-      //   })
-      //   .catch((error) => next(error));
     })
     .catch((error) => next(error));
 });
