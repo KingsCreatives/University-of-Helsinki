@@ -1,25 +1,36 @@
-require("dotenv").config();
 const express = require("express");
 const morgan = require("morgan");
 const cors = require("cors");
 const app = express();
-const PORT = process.env.PORT;
-const Person = require('./model/phonebook')
+const PORT = 3001
+require("dotenv").config();
 
-app.use(express.json());
-morgan.token("body", function (req) {
-  return JSON.stringify(req.body);
-});
-app.use(morgan(":method :url :status :response-time ms"));
-app.use(cors());
+const Person = require("./model/phonebook");
+
 app.use(express.static("dist"));
 
+const errorHandler = (error, req, res, next) => {
+  console.error(error.message);
+  if (error.name === "CastError") {
+    return res.status(400).send({ error: "malformatted id" });
+  }
+  next(error);
+};
 
+app.use(cors());
+app.use(express.json());
+app.use(morgan(":method :url :status :response-time ms"));
 
-app.get("/api/persons", (req, res) => {
-  Person.find({}).then(persons => {
-    res.json(persons)
-  })
+const unknownEndpoint = (request, response) => {
+  response.status(404).send({ error: "unknown endpoint" });
+};
+
+app.get("/api/persons", (req, res, next) => {
+  Person.find({})
+    .then((persons) => {
+      res.json(persons);
+    })
+    .catch((error) => next(error));
 });
 
 app.get("/info", (req, res) => {
@@ -51,15 +62,13 @@ app.get("/api/persons/:id", (req, res) => {
   return res.json(person);
 });
 
-app.delete("/api/persons/:id", (req, res) => {
+app.delete("/api/persons/:id", (req, res, next) => {
   Person.findByIdAndDelete(req.params.id)
-        .then(result => {
-          res.status(204).end();
-        })
-        .catch(error => next(error))
-
+    .then((result) => {
+      res.status(204).end();
+    })
+    .catch((error) => next(error));
 });
-
 
 app.post("/api/persons", (req, res) => {
   const { name, number } = req.body;
@@ -90,6 +99,27 @@ app.post("/api/persons", (req, res) => {
     });
 });
 
+app.put("/api/persons/:id", (req, res, next) => {
+  const {name, number} = req.body;
+  const person = {
+    name,
+    number
+  };
+
+  Person.findByIdAndUpdate(req.params.id, person, { new: true })
+    .then((updatedPerson) => {
+      res.json(updatedPerson);
+      // Person.find({})
+      //   .then((persons) => {
+      //     res.json(persons);
+      //   })
+      //   .catch((error) => next(error));
+    })
+    .catch((error) => next(error));
+});
+
+app.use(unknownEndpoint);
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`app is running on PORT:${PORT}`);
