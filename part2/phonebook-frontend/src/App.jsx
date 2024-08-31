@@ -12,13 +12,6 @@ const App = () => {
     type: null,
   });
 
-  const showNotification = (message, type = "success") => {
-    setNotification({ message, type });
-    setTimeout(() => {
-      setNotification({ message: null, type: null });
-    }, 5000);
-  };
-
   useEffect(() => {
     phoneServices
       .getAll()
@@ -29,6 +22,13 @@ const App = () => {
         console.error(err);
       });
   }, []);
+
+  const showNotification = (message, type = "success") => {
+    setNotification({ message, type });
+    setTimeout(() => {
+      setNotification({ message: null, type: null });
+    }, 5000);
+  };
 
   const [filter, setFilter] = useState("");
 
@@ -49,10 +49,10 @@ const App = () => {
         setPersons(persons.filter((person) => person.id !== id));
         showNotification(`Deleted ${contactToDelete.name}`);
       } catch (err) {
-      showNotification(
-        `Error deleting ${contactToDelete.name}: ${err.message}`,
-        "error"
-      );
+        showNotification(
+          `Error deleting ${contactToDelete.name}: ${err.message}`,
+          "error"
+        );
       }
     }
   };

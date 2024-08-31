@@ -7,9 +7,8 @@
     "start": "node index.js",
     "dev": "nodemon index.js",
     "build:ui": "rm -rf dist && cd ../../part2/phonebook-frontend/ && npm run build && cp -r dist ../../part3/phonebook-backend",
-    "deploy": "fly deploy",
-    "deploy:full": "npm run build:ui && npm run deploy",
-    "logs:prod": "fly logs"
+    "deploy": "find ../../../site -mindepth 1 ! -name 'Dockerfile' ! -name '.env' ! -name '.gitignore' -exec rm -rf {} + && cp -r ./* ../../../site/ && rm -f ../../site/.env ../../../site/.gitignore",
+    "lint": "eslint ."
   },
   "keywords": [],
   "author": "",
@@ -23,8 +22,11 @@
     "node": "^22.7.0"
   },
   "devDependencies": {
-    "@flydotio/dockerfile": "^0.5.8",
+    "@eslint/js": "^9.9.1",
+    "@stylistic/eslint-plugin-js": "^2.7.2",
     "dotenv": "^16.4.5",
+    "eslint": "^9.9.1",
+    "globals": "^15.9.0",
     "nodemon": "^3.1.4"
   }
 }
