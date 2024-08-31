@@ -2,8 +2,8 @@ const express = require("express");
 const morgan = require("morgan");
 const cors = require("cors");
 const app = express();
-const PORT = 3001;
 require("dotenv").config();
+const PORT = process.env.PORT || 3001;
 
 const Person = require("./model/phonebook");
 
@@ -13,6 +13,10 @@ const errorHandler = (error, req, res, next) => {
   console.error(error.message);
   if (error.name === "CastError") {
     return res.status(400).send({ error: "malformatted id" });
+  } else if (error.name === "ValidationError") {
+    return res.status(400).json({ error: error.message });
+  } else if (error.name === "MongoError" && error.code === 11000) {
+    return res.status(400).json({ error: "Duplicate field value entered" });
   }
   next(error);
 };
@@ -21,8 +25,8 @@ app.use(cors());
 app.use(express.json());
 app.use(morgan(":method :url :status :response-time ms"));
 
-const unknownEndpoint = (request, response) => {
-  response.status(404).send({ error: "unknown endpoint" });
+const unknownEndpoint = (req, res) => {
+  res.status(404).send({ error: "unknown endpoint" });
 };
 
 app.get("/api/persons", (req, res, next) => {
@@ -65,15 +69,10 @@ app.delete("/api/persons/:id", (req, res, next) => {
     .catch((error) => next(error));
 });
 
-app.post("/api/persons", (req, res) => {
+app.post("/api/persons", (req, res, next) => {
   const { name, number } = req.body;
 
-  if (!name || !number) {
-    const missingData = !name ? "name" : "number";
-    return res.status(404).json({ error: `${missingData} is missing` });
-  }
-
-  Person.findOne({ name: name.toLowerCase() })
+  Person.findOne({ name: name.toLowerCase() }, { runValidators: true })
     .then((existingPerson) => {
       if (existingPerson) {
         return res.status(409).json({ error: "name must be unique" });
@@ -89,19 +88,17 @@ app.post("/api/persons", (req, res) => {
     .then((savedPerson) => {
       res.status(201).json(savedPerson);
     })
-    .catch((err) => {
-      return res.status(500).json({ error: "Something went wrong" });
-    });
+    .catch((err) => next(err));
 });
 
 app.put("/api/persons/:id", (req, res, next) => {
   const { name, number } = req.body;
-  const person = {
-    name,
-    number,
-  };
 
-  Person.findByIdAndUpdate(req.params.id, person, { new: true })
+  Person.findByIdAndUpdate(
+    req.params.id,
+    { name, number },
+    { new: true, runValidators: true, context: "query" }
+  )
     .then((updatedPerson) => {
       res.json(updatedPerson);
     })

@@ -60,8 +60,7 @@ const ContactForm = ({ persons, setPersons, showNotification}) => {
         })
         .catch((err) => {
           showNotification(
-            `Error adding ${newContactToAdd.name}: ${err.message}`,
-            "error"
+            `${err.response.data.error}`
           );
         });
     }

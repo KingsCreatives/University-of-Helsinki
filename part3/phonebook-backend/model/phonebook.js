@@ -1,7 +1,6 @@
 const mongoose = require("mongoose");
 require("dotenv").config();
 
-
 mongoose.set("strictQuery", false);
 
 const url = process.env.MONGO_URI;
@@ -16,8 +15,22 @@ mongoose
   });
 
 const personSchema = new mongoose.Schema({
-  name: String,
-  number: String,
+  name: {
+    type: String,
+    minLength: 5,
+    required: true,
+  },
+  number: {
+    type: String, 
+    required: true,
+    validate: {
+      validator: function (v) {
+        return /^(\d{2,3})-\d{5,}$/.test(v);
+      },
+      message: (props) =>
+        `${props.value} is not a valid phone number! It should follow the format: 09-1234556 or 040-22334455.`,
+    },
+  },
 });
 
 personSchema.set("toJSON", {
