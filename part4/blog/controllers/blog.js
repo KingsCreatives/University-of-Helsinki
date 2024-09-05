@@ -1,5 +1,4 @@
 const blogRouter = require("express").Router();
-const blog = require("../models/blog");
 const Blog = require("../models/blog");
 
 blogRouter.get("/", async(req, res) => {
@@ -8,16 +7,21 @@ blogRouter.get("/", async(req, res) => {
 });
 
 blogRouter.post("/", async(req, res) => {
-  const blog = new Blog(req.body);
+  const body = req.body
   
-  
-
-  blog
-    .save()
-    .then((result) => {
-      res.status(201).json(result);
+  try{
+    const blog = new Blog({
+      title: body.title,
+      author: body.author,
+      url: body.url,
+      likes: body.likes || 0,
     })
-    .catch((error) => next(error));
+
+    const savedBlog = await blog.save()
+    res.status(201).json(savedBlog)
+  } catch(error){
+    res.status(400).send({error: 'Title or URL is missing'})
+  }
 });
 
 module.exports = blogRouter

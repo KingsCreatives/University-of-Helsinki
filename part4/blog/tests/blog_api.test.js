@@ -82,6 +82,19 @@ test("blog without likes default to 0", async () => {
   assert.deepStrictEqual(response.body.likes, 0)
 })
 
+test("blog without title or url", async () => {
+  const blog = {
+    author: "Edsger W. Dijkstra",
+    likes: 0,
+  };
+
+  await api
+        .post('/api/blogs')
+        .send(blog)
+        .expect(400)
+
+})
+
 after(async () => {
   await mongoose.connection.close();
 });
