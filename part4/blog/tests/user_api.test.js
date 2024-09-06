@@ -1,5 +1,6 @@
 const { test, after, beforeEach, describe } = require("node:test");
 const assert = require("node:assert");
+const mongoose = require('mongoose')
 const supertest = require("supertest");
 const app = require("../app");
 const api = supertest(app)
@@ -38,4 +39,34 @@ describe("when there is initially one user in db", () => {
     const usernames = usersAtEnd.map((u) => u.username);
     assert(usernames.includes(newUser.username));
   });
+
+  test("creation fails with invalid user", async() => {
+    const usersAtStart = await usersInDB()
+     const newUser = {
+       username: "mutahsjsk",
+       name: "lk",
+       password: "salainen",
+     };
+
+     api
+       .post("/api/users")
+       .send(newUser)
+       .expect(400)
+       .expect("Content-Type", /application\/json/);
+    
+      const usersAtEnd = await usersInDB()
+
+      assert.strictEqual(usersAtEnd.length, usersAtStart.length );
+
+      const usernames = usersAtEnd.map((u) => u.username);
+      assert(!usernames.includes(newUser.username));
+      
+  })
+
+  after(async () => {
+    await User.deleteMany({});
+    await mongoose.connection.close();
+  });
 });
+
+
