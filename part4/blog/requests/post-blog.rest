@@ -2,8 +2,9 @@ POST  http://localhost:3003/api/blogs
 Content-Type: application/json
 
 {
- "title" : "third blog",
- "author" : "kwasi adoma",
- "url" : "http://wkellskdlddl.com/blog/90",
- "likes" : 1342526
+ "title" : "for second blog",
+ "author" : "yayoo pol",
+ "url" : "http://gghose.tcom",
+ "likes" : 260,
+ "userId" : "66df2bb913d3e9a58b27c5c1"
 }
