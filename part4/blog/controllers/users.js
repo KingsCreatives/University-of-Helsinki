@@ -23,7 +23,7 @@ usersRouter.post("/", async (req, res) => {
       res.status(400).json({error: "Invalid user data, username and password must 3 characters or more"})
      }
   } catch (error) {
-    next(error)
+    console.log(error)
   }
 });
 

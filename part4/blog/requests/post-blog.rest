@@ -1,10 +1,10 @@
 POST  http://localhost:3003/api/blogs
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Imt1a3UiLCJpZCI6IjY2ZGZjZTIyNDYyZjhlMjc1YzliZGQ0OCIsImlhdCI6MTcyNTk0NDM1NiwiZXhwIjoxNzI1OTQ3OTU2fQ.gnCqnUtP-oOUP84Iz4Kl8Gze1Yw5lGNYavlnM9IrhAk
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Imt1a3UiLCJpZCI6IjY2ZGZjZTIyNDYyZjhlMjc1YzliZGQ0OCIsImlhdCI6MTcyNjAzNTE5NiwiZXhwIjoxNzI2MDM4Nzk2fQ.S6VGsEayjPb0VQympLP4nDO0kFsuQ4kN-88UH3df
 
 {
- "title" : "adding another blog",
- "author" : "kofi mole",
+ "title" : "second try last second another blog",
+ "author" : "cody toss",
  "url" : "http://gossip.com",
  "likes" : 260,
  "userId" : "66df2bb913d3e9a58b27c5c1"

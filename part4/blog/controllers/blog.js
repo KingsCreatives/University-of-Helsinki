@@ -3,43 +3,63 @@ const blogRouter = require("express").Router();
 const Blog = require("../models/blog");
 const User = require("../models/user");
 
-const getTokenFrom = (req) => {
-  const authorization = req.get("authorization");
-  if (authorization && authorization.startsWith("Bearer ")) {
-    return authorization.replace("Bearer ", "");
-  }
-  return null;
-};
 
 blogRouter.get("/", async (req, res) => {
   const blogs = await Blog.find({}).populate("user");
   res.json(blogs);
 });
 
-blogRouter.post("/", async (req, res) => {
-  const body = req.body;
+blogRouter.post("/", async (req, res, next) => {
+  try {
+    const decodedToken = jwt.verify(req.token, process.env.SECRET);
+    if (!decodedToken.id) {
+      return res.status(401).json({ error: "token invalid" });
+    }
+    const user = await User.findById(decodedToken.id);
 
-  const decodedToken = jwt.verify(getTokenFrom(req), process.env.SECRET);
-  if (!decodedToken.id) {
-    return response.status(401).json({ error: "token invalid" });
+    const blog = new Blog({
+      title: req.body.title,
+      author: req.body.author,
+      url: req.body.url,
+      likes: req.body.likes || 0,
+      user: user._id,
+    });
+
+    const savedBlog = await blog.save();
+    user.blogs = user.blogs.concat(savedBlog._id);
+    await user.save();
+
+    res.json(savedBlog);
+  } catch (error) {
+    next(error); 
   }
-
-  const user = await User.findById(decodedToken.id);
-
-  const blog = new Blog({
-    title: body.title,
-    author: body.author,
-    url: body.url,
-    likes: body.likes || 0,
-    user: user.id,
-  });
-
-  const savedBlog = await blog.save();
-  user.blogs = user.blogs.concat(savedBlog._id);
-  await user.save();
-
-  res.status(201).json(savedBlog);
 });
+
+
+// blogRouter.post("/", async (req, res) => {
+//   const body = req.body;
+
+//   const decodedToken = jwt.verify(req.token, process.env.SECRET);
+//   if (!decodedToken.id) {
+//     return response.status(401).json({ error: "token invalid" });
+//   }
+
+//   const user = await User.findById(decodedToken.id);
+
+//   const blog = new Blog({
+//     title: body.title,
+//     author: body.author,
+//     url: body.url,
+//     likes: body.likes || 0,
+//     user: user.id,
+//   });
+
+//   const savedBlog = await blog.save();
+//   user.blogs = user.blogs.concat(savedBlog._id);
+//   await user.save();
+
+//   res.status(201).json(savedBlog);
+// });
 
 blogRouter.delete("/:id", async (req, res) => {
   const id = req.params.id;
