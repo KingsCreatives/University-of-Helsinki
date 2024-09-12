@@ -1,11 +1,11 @@
 POST  http://localhost:3003/api/blogs
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Imt1a3UiLCJpZCI6IjY2ZGZjZTIyNDYyZjhlMjc1YzliZGQ0OCIsImlhdCI6MTcyNjAzNTE5NiwiZXhwIjoxNzI2MDM4Nzk2fQ.S6VGsEayjPb0VQympLP4nDO0kFsuQ4kN-88UH3df
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Imt1a3UiLCJpZCI6IjY2ZG
 
 {
- "title" : "second try last second another blog",
+ "title" : "wrong try",
  "author" : "cody toss",
  "url" : "http://gossip.com",
- "likes" : 260,
+ "likes" : 780,
  "userId" : "66df2bb913d3e9a58b27c5c1"
 }
