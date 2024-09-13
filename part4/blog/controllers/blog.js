@@ -1,6 +1,8 @@
 const blogRouter = require("express").Router();
 const Blog = require("../models/blog");
 const middleware = require("../utils/middleware");
+const mongoose = require("mongoose"); 
+
 
 blogRouter.get("/", async (req, res) => {
   const blogs = await Blog.find({}).populate("user");
@@ -26,26 +28,66 @@ blogRouter.post("/", middleware.userExtractor, async (req, res, next) => {
     user.blogs = user.blogs.concat(savedBlog._id);
     await user.save();
 
-    res.json(savedBlog);
+    res.status(201).json(savedBlog);
   } catch (error) {
     next(error);
   }
 });
 
+// blogRouter.delete("/:id", middleware.userExtractor, async (req, res) => {
+//   try {
+//     const blogId = req.params.id;
+//     const user = req.user;
+
+//     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+//       return res.status(400).json({ error: "Invalid blog ID" });
+//     }
+
+
+//     if (!user) {
+//       return res.status(401).json({ error: "user not found" });
+//     }
+
+//     const blog = await Blog.findById(blogId);
+//     if (!blog) {
+//       return res.status(404).json({ error: "blog not found" });
+//     }
+
+//     if (!blog.user || blog.user.toString() !== user._id.toString()) {
+//       return res
+//         .status(403)
+//         .json({ error: "only the creator can delete this blog" });
+//     }
+
+//     await Blog.findByIdAndDelete(blogId);
+//     res.status(204).end();
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).send({ error: "something went wrong" });
+//   }
+// });
+
 blogRouter.delete("/:id", middleware.userExtractor, async (req, res) => {
   try {
     const blogId = req.params.id;
-
     const user = req.user;
-    if (!user) {
-      return res.status(404).json({ error: "invalid user" });
+
+    // Validate the ID first
+    if (!mongoose.Types.ObjectId.isValid(blogId)) {
+      return res.status(400).json({ error: "Invalid blog ID" });
     }
+
+    if (!user) {
+      return res.status(401).json({ error: "user not found" });
+    }
+
     const blog = await Blog.findById(blogId);
     if (!blog) {
       return res.status(404).json({ error: "blog not found" });
     }
 
-    if (blog.user.toString() !== user._id.toString()) {
+    // Check if blog.user exists and only then compare
+    if (!blog.user || blog.user.toString() !== user._id.toString()) {
       return res
         .status(403)
         .json({ error: "only the creator can delete this blog" });
@@ -54,10 +96,11 @@ blogRouter.delete("/:id", middleware.userExtractor, async (req, res) => {
     await Blog.findByIdAndDelete(blogId);
     res.status(204).end();
   } catch (error) {
-    console.log(error);
+    console.error(error); // Keep this for logging
     res.status(500).send({ error: "something went wrong" });
   }
 });
+
 
 blogRouter.put("/:id", async (req, res) => {
   const id = req.params.id;

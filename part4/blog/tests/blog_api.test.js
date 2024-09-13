@@ -4,12 +4,31 @@ const mongoose = require("mongoose");
 const supertest = require("supertest");
 const app = require("../app");
 const Blog = require("../models/blog");
-const { initialBlogs, blogsInDb, nonExistingId } = require("./test_helper");
+
+const { initialBlogs, blogsInDb} = require("./test_helper");
 const api = supertest(app);
+const jwt = require("jsonwebtoken");
+const User = require("../models/user");
+
+let token;
+
+const generateToken = async () => {
+  const user = new User({
+    username: "testuser",
+    name: "Test User",
+    passwordHash:
+      "$2b$10$TEeGljteeyHlZMSmJB138eLjtqUqcbD1rvqvy1HiWyBFwr3qRU0BS",
+  });
+  await user.save();
+  const userForToken = { id: user._id };
+  return jwt.sign(userForToken, process.env.SECRET);
+};
 
 beforeEach(async () => {
   await Blog.deleteMany({});
+  await User.deleteMany({});
   await Blog.insertMany(initialBlogs);
+  token = await generateToken();
 });
 
 describe("when there is initially some blogs save", () => {
@@ -28,6 +47,13 @@ describe("when there is initially some blogs save", () => {
 });
 
 describe("addition of a new blog", () => {
+  beforeEach(async () => {
+    const existingUser = await User.findOne({ username: "testuser" });
+    if (!existingUser) {
+      await User.create({ username: "testuser", ...otherFields });
+    }
+  })
+
   test("the unique identifier property of a blog post is named 'id'", async () => {
     const blog = {
       title: "Test Blog",
@@ -36,7 +62,10 @@ describe("addition of a new blog", () => {
       likes: 5,
     };
 
-    const response = await api.post("/api/blogs").send(blog);
+    const response = await api
+      .post("/api/blogs")
+      .set("Authorization", `Bearer ${token}`)
+      .send(blog);
 
     const returnedBlog = response.body;
 
@@ -45,12 +74,16 @@ describe("addition of a new blog", () => {
       author: "Test Author",
       url: "http://example.com",
       likes: 5,
-      id: returnedBlog.id,
+      id: returnedBlog.id, 
     };
 
-    assert.deepStrictEqual(returnedBlog, expectedBlog);
+    assert.deepStrictEqual(
+      { ...returnedBlog, user: undefined }, 
+      { ...expectedBlog, user: undefined } 
+    );
   });
 
+  
   test("the blog successfully created", async () => {
     const blog = {
       _id: "5a422b3a1b54a676234d17f9",
@@ -63,6 +96,7 @@ describe("addition of a new blog", () => {
 
     await api
       .post("/api/blogs")
+      .set("Authorization", `Bearer ${token}`)
       .send(blog)
       .expect(201)
       .expect("Content-Type", /application\/json/);
@@ -79,7 +113,10 @@ describe("addition of a new blog", () => {
       url: "http://www.cs.utexas.edu/~EWD/transcriptions/EWD08xx/EWD808.html",
     };
 
-    const response = await api.post("/api/blogs").send(blog);
+    const response = await api
+      .post("/api/blogs")
+      .set("Authorization", `Bearer ${token}`)
+      .send(blog);
     assert.deepStrictEqual(response.body.likes, 0);
   });
 
@@ -89,7 +126,11 @@ describe("addition of a new blog", () => {
       likes: 0,
     };
 
-    await api.post("/api/blogs").send(blog).expect(400);
+    await api
+      .post("/api/blogs")
+      .set("Authorization", `Bearer ${token}`)
+      .send(blog)
+      .expect(400);
   });
 });
 
@@ -97,12 +138,16 @@ describe("deletion of a blog", () => {
   test("succeeds with status code 204 if id is valid", async () => {
     const blogsAtStart = await blogsInDb();
     const blogToDelete = blogsAtStart[0];
-
-    await api.delete(`/api/blogs/${blogToDelete.id}`).expect(204);
+    
+    
+    await api
+      .delete(`/api/blogs/${blogToDelete.id}`)
+      .set("Authorization", `Bearer ${token}`)
+      .expect(204);
 
     const blogsAtEnd = await blogsInDb();
 
-    assert.strictEqual(blogsAtEnd.length, initialBlogs.length - 1);
+    assert.strictEqual(blogsAtEnd.length, blogsAtStart.length - 1);
 
     const blog = blogsAtEnd.map((r) => r.title);
     assert(!blog.includes(blogToDelete.title));
@@ -124,7 +169,7 @@ describe("update likes of a blog", () => {
 
     await api
       .put(`/api/blogs/${blogToUpdate.id}`)
-      .send({ likes: blogToUpdate.likes })
+      .send({ likes: blogToUpdate.likes + 1})
       .expect(200)
       .expect("Content-Type", /application\/json/);
 
