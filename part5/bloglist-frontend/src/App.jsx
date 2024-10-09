@@ -1,10 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Blog from "./components/Blog";
 import LoginForm from "./components/LoginForm";
 import BlogForm from "./components/BlogForm";
 import blogService from "./services/blogs";
 import loginService from "./services/login";
 import Notification from "./components/Notification";
+import Togglable from "./components/Togglable";
 
 const App = () => {
   const [blogs, setBlogs] = useState([]);
@@ -15,6 +16,9 @@ const App = () => {
     message: null,
     type: null,
   });
+  const [loginVisible, setLoginVisible] = useState(false);
+
+  const blogFormRef = useRef();
 
   useEffect(() => {
     blogService.getAll().then((blogs) => setBlogs(blogs));
@@ -60,37 +64,62 @@ const App = () => {
     window.location.reload();
   };
 
+  const loginForm = () => {
+    const hideWhenVisible = { display: loginVisible ? "none" : "" };
+    const showWhenVisible = { display: loginVisible ? "" : "none" };
+
+    return (
+      <div>
+        <div style={hideWhenVisible}>
+          <button onClick={() => setLoginVisible(true)}>log in</button>
+        </div>
+        <div style={showWhenVisible}>
+          <LoginForm
+            username={username}
+            setUsername={setUsername}
+            password={password}
+            setPassword={setPassword}
+            handleLogin={handleLogin}
+          />
+          <button onClick={() => setLoginVisible(false)}>cancel</button>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div>
       <h2>{user ? "blogs" : "log in to application"}</h2>
-      <br />
-      {notification.message && (
-        <Notification message={notification.message} type={notification.type} />
-      )}
-      <br />
-      {!user ? (
-        <LoginForm
-          username={username}
-          setUsername={setUsername}
-          password={password}
-          setPassword={setPassword}
-          handleLogin={handleLogin}
-        />
-      ) : (
-        <div>
-          <div>
-            {user.name} logged in <button onClick={handleLogout}>logout</button>
-          </div>
-          <br />
-          <BlogForm
-            blogs={blogs}
-            setBlogs={setBlogs}
-            showNotification={showNotification}
+      <div>
+        {notification.message && (
+          <Notification
+            message={notification.message}
+            type={notification.type}
           />
-          <br />
-          {blogs.map((blog) => (
-            <Blog key={blog.id} blog={blog} />
-          ))}
+        )}
+      </div>
+      {!user && loginForm()}
+      {user && (
+        <div>
+          <p>
+            {user.username} logged in{" "}
+            <button onClick={handleLogout}>logout</button>
+          </p>
+          <div>
+            <Togglable buttonLabel="new blog" ref={blogFormRef}>
+              <BlogForm
+                blogs={blogs}
+                setBlogs={setBlogs}
+                showNotification={showNotification}
+                blogFormRef={blogFormRef}
+              />
+            </Togglable>
+          </div>
+          <ul>
+            {blogs.map((blog) => (
+              <Blog key={blog.id} blog={blog} />
+            ))}
+          </ul>
         </div>
       )}
     </div>
