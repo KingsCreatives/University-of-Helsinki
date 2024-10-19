@@ -1,7 +1,9 @@
 import { useState } from "react";
+import blogService from "../services/blogs";
 
 const Blog = ({ blog }) => {
   const [mode, setMode] = useState(false);
+  const [likes, setLikes] = useState(blog.likes);
 
   const containerStyle = {
     padding: "10px 15px",
@@ -35,10 +37,19 @@ const Blog = ({ blog }) => {
     color: "#555",
   };
 
+  const handleLike = async () => {
+    try {
+      const updatedBlog = await blogService.update(blog.id);
+      setLikes(updatedBlog.likes);
+      console.log("Updated Blog:", updatedBlog);
+    } catch (error) {
+      console.error("Error updating likes:", error);
+    }
+  };
+
   return (
     <div style={containerStyle}>
       <div>
-      
         <span style={titleStyle}>{blog.title}</span>
         <button style={buttonStyle} onClick={() => setMode(!mode)}>
           {!mode ? "View" : "Hide"}
@@ -50,7 +61,7 @@ const Blog = ({ blog }) => {
               URL: <a href={blog.url}>{blog.url}</a>
             </p>
             <p>
-              Likes: 0 <button>Like</button>
+              Likes: {likes} <button onClick={handleLike}>Like</button>
             </p>
             <p>Author: {blog.author}</p>
           </div>

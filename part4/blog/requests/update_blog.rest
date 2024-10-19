@@ -1,11 +1,11 @@
-PUT http://localhost:3003/api/blogs/66d5fd8762233348b9de5461
+PUT http://localhost:3003/api/blogs/670a40b4f622da981b28c691
 Content-Type: application/json
 
 {
   "title": "first blog second try update",
   "author": "solo arthur",
   "url": "http://localdkdld.com/blog/90",
-  "likes": 13,
+  "likes": 0,
   "id": "66d5fd6462233348b9de545f"
 }
 
