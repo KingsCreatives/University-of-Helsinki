@@ -16,6 +16,7 @@ const App = () => {
     message: null,
     type: null,
   });
+
   const [loginVisible, setLoginVisible] = useState(false);
 
   const blogFormRef = useRef();
@@ -86,6 +87,7 @@ const App = () => {
       </div>
     );
   };
+
 
   return (
     <div>

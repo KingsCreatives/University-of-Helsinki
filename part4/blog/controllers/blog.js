@@ -5,7 +5,7 @@ const mongoose = require("mongoose");
 
 
 blogRouter.get("/", async (req, res) => {
-  const blogs = await Blog.find({}).populate("user");
+  const blogs = await Blog.find({}).populate("user").sort({likes:-1});
   res.json(blogs);
 });
 
