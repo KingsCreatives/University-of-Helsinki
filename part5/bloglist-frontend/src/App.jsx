@@ -88,6 +88,16 @@ const App = () => {
     );
   };
 
+  const handleBlogDelete = async (blogId) => {
+    try {
+      await blogService.deleteBlog(blogId);
+      setBlogs(blogs.filter((blog) => blog.id !== blogId));
+      showNotification("Blog deleted successfully", "success");
+    } catch (error) {
+      showNotification("Error deleting blog", "error");
+      console.error("Error deleting blog:", error);
+    }
+  };
 
   return (
     <div>
@@ -119,7 +129,7 @@ const App = () => {
           </div>
           <ul>
             {blogs.map((blog) => (
-              <Blog key={blog.id} blog={blog} />
+              <Blog key={blog.id} blog={blog} onDelete={handleBlogDelete} />
             ))}
           </ul>
         </div>

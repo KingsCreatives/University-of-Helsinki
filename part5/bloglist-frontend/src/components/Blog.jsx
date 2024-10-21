@@ -1,7 +1,7 @@
 import { useState } from "react";
 import blogService from "../services/blogs";
 
-const Blog = ({ blog }) => {
+const Blog = ({ blog, onDelete }) => {
   const [mode, setMode] = useState(false);
   const [likes, setLikes] = useState(blog.likes);
 
@@ -47,13 +47,28 @@ const Blog = ({ blog }) => {
     }
   };
 
+  const handleDeleteBlog = async () => {
+    const confirmBlogDeletion = window.confirm(
+      `Remove blog ${blog.title} by ${blog.author}`
+    );
+    try {
+      if (confirmBlogDeletion) {
+         await onDelete(blog.id)
+      }
+    } catch (error) {
+      console.error("Error ", error);
+    }
+  };
+
   return (
     <div style={containerStyle}>
       <div>
-        <span style={titleStyle}>{blog.title}</span>
-        <button style={buttonStyle} onClick={() => setMode(!mode)}>
-          {!mode ? "View" : "Hide"}
-        </button>
+        <div style={{display:"flex", justifyContent: "space-between"}}>
+          <span style={titleStyle}>{blog.title}</span>
+          <button style={buttonStyle} onClick={() => setMode(!mode)}>
+            {!mode ? "View" : "Hide"}
+          </button>
+        </div>
 
         {mode && (
           <div style={detailStyle}>
@@ -64,6 +79,7 @@ const Blog = ({ blog }) => {
               Likes: {likes} <button onClick={handleLike}>Like</button>
             </p>
             <p>Author: {blog.author}</p>
+              <button onClick={handleDeleteBlog} style={{background:"blue"}}>remove</button>
           </div>
         )}
       </div>
